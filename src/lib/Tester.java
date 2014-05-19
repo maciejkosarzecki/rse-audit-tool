@@ -57,11 +57,13 @@ public class Tester {
 //        {
 //            e.printStackTrace();
 //        }
-        ExtractionKit ek = new ExtractionKit();
-        try {
-            ek.extractData("/home/maciej/Studia/RSE/audit_data/");
-        } catch (ZipException ex) {
-            Logger.getLogger(Tester.class.getName()).log(Level.SEVERE, null, ex);
-        }
+//        ExtractionKit ek = new ExtractionKit();
+//        try {
+//            ek.extractFiles("/home/maciej/Studia/RSE/audit_data/");
+//        } catch (ZipException ex) {
+//            Logger.getLogger(Tester.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+        Auditor auditor = new Auditor();
+        auditor.extractABB("/home/maciej/Studia/RSE/audit_data/");
     }
 }

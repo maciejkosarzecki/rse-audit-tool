@@ -39,20 +39,43 @@ import net.lingala.zip4j.exception.ZipException;
 public class ExtractionKit {
     
     /**
-     * @param abbPath String path of the ABB.zip file. 
-     * @return array of DataTable objects.  
+     * Extract files from a specified .zip file. 
+     * @param abbPath String path of the ABB.zip file.  
      * @throws net.lingala.zip4j.exception.ZipException thrown when cannot 
      * extract specified .zip file. 
      */
-    public DataTable[] extractData(String abbPath) throws ZipException
+    public void extractFiles(String abbPath) throws ZipException
     {
         // extracts ABB.zip
         extractZipFile(abbPath+Lib.ABB_FILE_NAME, abbPath);
-        
+
+    }
+    
+    /**
+     * 
+     * @param abbPath
+     * @return
+     * @throws ZipException 
+     */
+    public DataTable[] extractData(String abbPath) throws ZipException
+    {
         // parses .csv table files
-        return parseTableFiles(abbPath+Lib.ABB_EXTRACTION_DESTINATION_FOLDER);
+        return parseTableFiles(abbPath+Lib.ABB_EXTRACTION_DESTINATION_FOLDER);   
+    }
+    
+    
+    public DataTable[] extractDataKeys(String abbPath)
+    {
+        DataTable[] auditTables;
         
+        TableFilesFilter auditTablesFilter 
+                = new TableFilesFilter(Lib.ABB_AUDIT_FILES_NAME);
         
+        File directory = new File(abbPath+Lib.ABB_EXTRACTION_DESTINATION_FOLDER);
+        auditTables = parseTableFielsGroup(directory, auditTablesFilter);
+        
+        Arrays.sort(auditTables);
+        return auditTables;
     }
     
     /**
@@ -72,12 +95,9 @@ public class ExtractionKit {
      */
     private DataTable[] parseTableFiles(String path)
     {
-        File[] tableFiles;
-        
         DataTable[] prepareATables;
         DataTable[] prepareBTables;
         DataTable[] finalizeTables;
-        DataTable[] auditTables;
         DataTable[] tables;
         
         File directory = new File(path);
@@ -88,57 +108,42 @@ public class ExtractionKit {
                 = new TableFilesFilter(Lib.ABB_PREPARE_B_FILES_NAME);
         TableFilesFilter finalizeTablesFilter
                 = new TableFilesFilter(Lib.ABB_FINALIZE_FILES_NAME);
-        TableFilesFilter auditTablesFilter
-                = new TableFilesFilter(Lib.ABB_AUDIT_FILES_NAME);
-        
 
-        ArrayList<DataRow> auditDataRows;
-        
-        DataCellKey[] cellKeys;
-        
         // parse prepare A type .csv files
-        tableFiles = directory.listFiles(prepareATablesFilter);
-        prepareATables = new DataTable[tableFiles.length];
-        
-        for(int i=0; i<prepareATables.length; i++)
-        {
-            prepareATables[i] = parseTableFile(tableFiles[i]);
-        }
+        prepareATables = parseTableFielsGroup(directory, prepareATablesFilter);
         
         // parse prepare B type .csv files
-        tableFiles = directory.listFiles(prepareBTablesFilter);
-        prepareBTables = new DataTable[tableFiles.length];
-        
-        for(int i=0; i<prepareBTables.length; i++)
-        {
-            prepareBTables[i] = parseTableFile(tableFiles[i]);
-        }
+        prepareBTables = parseTableFielsGroup(directory, prepareBTablesFilter);
         
         // parse finalize .csv files
-        tableFiles = directory.listFiles(finalizeTablesFilter);
-        finalizeTables = new DataTable[tableFiles.length];
-        
-        for(int i=0; i<finalizeTables.length; i++)
-        {
-            finalizeTables[i] = parseTableFile(tableFiles[i]);
-        }
-        
-        // parse audit .csv files
-        tableFiles = directory.listFiles(auditTablesFilter);
-        auditTables = new DataTable[tableFiles.length];
-        
-        for(int i=0; i<auditTables.length; i++)
-        {
-            auditTables[i] = parseTableFile(tableFiles[i]);
-        }
+        finalizeTables = parseTableFielsGroup(directory, finalizeTablesFilter);
         
         Arrays.sort(prepareATables);
         Arrays.sort(prepareBTables);
         Arrays.sort(finalizeTables);
-        Arrays.sort(auditTables);
-  
+        
         // merge tables 
         tables = mergeTables(prepareATables, prepareBTables, finalizeTables);
+        return tables;
+    }
+    
+    /**
+     * Parses a group of table files specified by filter parameter. 
+     * @param directory directory to be extracted. 
+     * @param filter filter to be used to choose tables to be extracted. 
+     * @return array of data tables of a specified group.
+     */
+    private DataTable[] parseTableFielsGroup(File directory, TableFilesFilter filter)
+    {
+        // parse prepare A type .csv files
+        DataTable[] tables;
+        File [] tableFiles = directory.listFiles(filter);
+        tables = new DataTable[tableFiles.length];
+        
+        for(int i=0; i<tables.length; i++)
+        {
+            tables[i] = parseTableFile(tableFiles[i]);
+        }
         return tables;
     }
     

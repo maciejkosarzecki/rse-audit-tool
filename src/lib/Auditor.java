@@ -28,6 +28,7 @@ import net.lingala.zip4j.exception.ZipException;
 public class Auditor {
     
     DataTable [] dataTables;
+    DataTable [] dataTablesKeys;
     ExtractionKit ek;
     
     /**
@@ -41,7 +42,10 @@ public class Auditor {
     public void extractABB(String abbPath)
     {
         try {
+            ek.extractFiles("/home/maciej/Studia/RSE/audit_data/");
             dataTables = ek.extractData("/home/maciej/Studia/RSE/audit_data/");
+            dataTablesKeys = ek.extractDataKeys("/home/maciej/Studia/RSE/audit_data/");
+            int n=0; 
         } catch (ZipException ex) {
             Logger.getLogger(Auditor.class.getName()).log(Level.SEVERE, null, ex);
         }
