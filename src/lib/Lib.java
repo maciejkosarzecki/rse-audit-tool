@@ -108,4 +108,9 @@ public class Lib {
      * String that is included in ABB audit .csv files name.
      */
     public static String ABB_AUDIT_FILES_NAME = "audit";
+    
+    /**
+     * String type of hash function used for key commitments. 
+     */
+    public static String HASH_FUNCTION = "SHA-1";
 }

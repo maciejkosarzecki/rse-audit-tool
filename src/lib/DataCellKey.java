@@ -38,12 +38,18 @@ public class DataCellKey {
     private String plaintext;
     
     /**
+     * Determines if key is opened. 
+     */
+    private boolean opened;
+    
+    /**
      * Default constructor of this class. 
      * @param comm base64 encoded commitment to a key value. 
      */
     public DataCellKey(String comm)
     {
         this.commitment = comm;
+        opened = false;
     }
     
     /**
@@ -57,5 +63,17 @@ public class DataCellKey {
         this(comm);
         this.decommitment = decomm;
         this.plaintext = plain;
+        if(!decommitment.isEmpty() && !plaintext.isEmpty())
+            opened = true;
     }
+    
+    /**
+     * Tells if a key is opened. 
+     * @return boolean value specifying if a key is opened. 
+     */
+    public boolean isOpened() { return opened; }
+    
+    public String getCommitment() { return commitment; } 
+    public String getDecommitment() { return decommitment; } 
+    public String getPlaintext() { return plaintext; } 
 }

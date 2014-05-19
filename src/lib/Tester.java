@@ -65,5 +65,6 @@ public class Tester {
 //        }
         Auditor auditor = new Auditor();
         auditor.extractABB("/home/maciej/Studia/RSE/audit_data/");
+        auditor.audit();
     }
 }

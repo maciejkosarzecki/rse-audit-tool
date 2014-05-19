@@ -52,18 +52,24 @@ public class ExtractionKit {
     }
     
     /**
-     * 
-     * @param abbPath
-     * @return
-     * @throws ZipException 
+     * Creates DataTable objects from .csv table files in from 
+     * a specified directory. 
+     * @param abbPath String path of a directory with .csv files. 
+     * @return array of DataTable objects representing .csv table files. 
      */
-    public DataTable[] extractData(String abbPath) throws ZipException
+    public DataTable[] extractData(String abbPath)
     {
         // parses .csv table files
         return parseTableFiles(abbPath+Lib.ABB_EXTRACTION_DESTINATION_FOLDER);   
     }
     
-    
+    /**
+     * Creates DataTable objects containing opened keys for audit of 
+     * the elections.
+     * @param abbPath String path of a directory with .csv files. 
+     * @return array of DataTable objects containing opened keys for audit of
+     * the elections.
+     */
     public DataTable[] extractDataKeys(String abbPath)
     {
         DataTable[] auditTables;
