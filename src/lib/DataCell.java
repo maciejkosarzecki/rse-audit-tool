@@ -47,4 +47,14 @@ public class DataCell {
         this.initialVector = IV;
         this.ciphertext = c;
     }
+    
+    
+    public void setPlaintext(String plain)
+    {
+        plaintext = plain;
+    }
+    
+    public String getCiphertext() { return ciphertext; }
+    
+    public String getInitialVector() { return initialVector; }
 }

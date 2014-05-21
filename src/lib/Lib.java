@@ -113,4 +113,9 @@ public class Lib {
      * String type of hash function used for key commitments. 
      */
     public static String HASH_FUNCTION = "SHA-1";
+    
+    /**
+     * String type of cipher used for encryption.
+     */
+    public static String ENCRYPTION_ALGORITHM = "AES";
 }

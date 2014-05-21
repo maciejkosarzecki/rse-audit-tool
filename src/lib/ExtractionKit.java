@@ -70,7 +70,7 @@ public class ExtractionKit {
      * @return array of DataTable objects containing opened keys for audit of
      * the elections.
      */
-    public DataTable[] extractDataKeys(String abbPath)
+    public DataTable[] extractDataKeys(String abbPath) throws AuditException
     {
         DataTable[] auditTables;
         
@@ -80,6 +80,10 @@ public class ExtractionKit {
         File directory = new File(abbPath+Lib.ABB_EXTRACTION_DESTINATION_FOLDER);
         auditTables = parseTableFielsGroup(directory, auditTablesFilter);
         
+        // specify batch
+        for(DataTable table : auditTables)
+            table.specifyBatch();
+            
         Arrays.sort(auditTables);
         return auditTables;
     }

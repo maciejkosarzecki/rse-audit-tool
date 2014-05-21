@@ -104,6 +104,34 @@ public class DataTable implements Comparable {
      * @return int table number.
      */
     public int getNumber() { return number; }
+    
+    public void specifyBatch() throws AuditException
+    {
+        if(cellKeys[Lib.COL_HEADER_SN_AND_VC].isOpened()
+                && cellKeys[Lib.COL_HEADER_P_CHECK].isOpened()
+                && cellKeys[Lib.COL_HEADER_MARK_VOTED].isOpened())
+            batch = 1;
+        else if (cellKeys[Lib.COL_HEADER_P_CHECK].isOpened()
+                && cellKeys[Lib.COL_HEADER_POSS_VOTE].isOpened())
+            batch = 2;
+        else if (cellKeys[Lib.COL_HEADER_POSS_VOTE].isOpened()
+                && cellKeys[Lib.COL_HEADER_MARK_VOTED].isOpened()
+                && cellKeys[Lib.COL_HEADER_PRE_SUM_A].isOpened()
+                && cellKeys[Lib.COL_HEADER_FINAL_SUM_A].isOpened())
+            batch = 3;
+        else if (cellKeys[Lib.COL_HEADER_POSS_VOTE].isOpened()
+                && cellKeys[Lib.COL_HEADER_MARK_VOTED].isOpened()
+                && cellKeys[Lib.COL_HEADER_PRE_SUM_B].isOpened()
+                && cellKeys[Lib.COL_HEADER_FINAL_SUM_B].isOpened())
+            batch = 4;
+        else if (cellKeys[Lib.COL_HEADER_SN_AND_VC].isOpened()
+                && cellKeys[Lib.COL_HEADER_FINAL_SUM_A].isOpened()
+                && cellKeys[Lib.COL_HEADER_FINAL_SUM_B].isOpened())
+            batch = 5;
+        else 
+            throw new AuditException("Cannot specify batch of a table number "
+                    +number+" for specified keys opened!");
+    }
 
     
     @Override
