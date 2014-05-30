@@ -100,6 +100,17 @@ public class DataTable implements Comparable {
     public DataCellKey[] getCellKeys() { return cellKeys; }
     
     /**
+     * Sets data cell keys of this table.
+     * @param keys
+     * @throws AuditException 
+     */
+    public void setCellKeys(DataCellKey[] keys) throws AuditException
+    {
+        cellKeys = keys;
+        specifyBatch();
+    }
+    
+    /**
      * Returns number of this table. 
      * @return int table number.
      */
@@ -132,6 +143,8 @@ public class DataTable implements Comparable {
             throw new AuditException("Cannot specify batch of a table number "
                     +number+" for specified keys opened!");
     }
+    
+    public int getBatch() { return batch; }
 
     
     @Override

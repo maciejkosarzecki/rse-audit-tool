@@ -118,4 +118,45 @@ public class Lib {
      * String type of cipher used for encryption.
      */
     public static String ENCRYPTION_ALGORITHM = "AES";
+    
+    /**
+     * String total number of batches. 
+     */
+    public static int BATCHES_NUMBER = 5;
+    
+    /**
+     * String column 2 NOT CHECKED value.
+     */
+    public static String COL_VALUE_NOT_CHECKED = "0";
+    
+    /**
+     * String column 3 YES VOTE value. 
+     */
+    public static String COL_VALUE_YES_VOTE = "1";
+    
+    /**
+     * String column 3 NO VOTE value.
+     */
+    public static String COL_VALUE_NO_VOTE = "0";
+    
+    /**
+     * String column 4 VOTED value.
+     */
+    public static String COL_VALUE_VOTED = "1";
+    
+    /**
+     * String column 4 NOT VOTED value.
+     */
+    public static String COL_VALUE_NOT_VOTED = "0";
+    
+    /**
+     * String column 5 and 6 FAKE VOTE value.
+     */
+    public static String COL_VALUE_FAKE_VOTE = "-1";
+    
+    /**
+     * Column serial number & vote code delimiting character.
+     */
+    public static String COL_SN_AND_VC_DELIMITING_CHAR = "-";
+    
 }

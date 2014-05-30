@@ -17,6 +17,8 @@
 
 package lib;
 
+import javax.xml.bind.DatatypeConverter;
+
 /**
  * Class representing a single cell of table data.
  * @author Maciej Kosarzecki
@@ -57,4 +59,11 @@ public class DataCell {
     public String getCiphertext() { return ciphertext; }
     
     public String getInitialVector() { return initialVector; }
+    
+    public String getPlaintext() { return plaintext; }
+    
+    public String getPlaintextASCIIEncoded() 
+    {
+        return new String(DatatypeConverter.parseBase64Binary(plaintext));
+    }
 }

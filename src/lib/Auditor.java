@@ -20,6 +20,7 @@ package lib;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.DatatypeConverter;
@@ -33,6 +34,7 @@ public class Auditor {
     
     private DataTable [] dataTables;
     private DataTable [] dataTablesKeys;
+    private ArrayList<ArrayList<Integer>> batches;
     private ExtractionKit ek;
     private MessageDigest md;
     
@@ -44,6 +46,9 @@ public class Auditor {
         try {
             ek = new ExtractionKit();
             md = MessageDigest.getInstance(Lib.HASH_FUNCTION);
+            batches = new ArrayList<>(Lib.BATCHES_NUMBER);
+            for(int i=0; i<Lib.BATCHES_NUMBER; i++)
+                batches.add(new ArrayList<Integer>());
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(Auditor.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -60,6 +65,15 @@ public class Auditor {
             ek.extractFiles(abbPath);
             dataTables = ek.extractData(abbPath);
             dataTablesKeys = ek.extractDataKeys(abbPath);
+            // copy keys to dataTables
+            setDataTableKeys();
+            
+            // create ArrayLists with information about tables batches
+            for(DataTable t : dataTables)
+            {
+                batches.get(t.getBatch()-1).add(t.getNumber());
+            }
+            
             
         } catch (ZipException ex) {
             Logger.getLogger(Auditor.class.getName()).log(Level.SEVERE, null, ex);
@@ -76,7 +90,12 @@ public class Auditor {
         checkOpenedKeysCorrectness();
         checkKeyCommitmentsConsistency();
         decryptCells();
-//        int n = 0;
+        checkBatchesConsistency();
+        try {
+            verifyTally();
+        } catch (AuditException ex) {
+            Logger.getLogger(Auditor.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /**
@@ -196,23 +215,188 @@ public class Auditor {
                         String message = DatatypeConverter.printBase64Binary(out);
                         String messageString = new String(out);
                         
-                        System.out.println(messageString);
-                        message +="!!!!!";
-                        row.getDataCell(column).setPlaintext(messageString);
+//                        row.getDataCell(column).setPlaintext(messageString);
+                        row.getDataCell(column).setPlaintext(message);
                     }
                 }
             }
         }
     }
     
-    private void verifyTally()
+    private void setDataTableKeys()
     {
-        int yesB3 = 0;
-        int noB3 = 0;
-        int yesB4 = 0;
-        int noB4 = 0; 
+        for(int i=0; i<dataTables.length; i++)
+        {
+            try {
+                dataTables[i].setCellKeys(dataTablesKeys[i].getCellKeys());
+            } catch (AuditException ex) {
+                Logger.getLogger(Auditor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    private boolean checkBatchesConsistency()
+    {
+        int sum = 0;
+        for(int i=0; i<batches.size(); i++)
+        {
+            System.out.println("Batch "+(i+1)+" - " + batches.get(i).size()+" table(s)!");
+            sum+=batches.get(i).size();
+        }
+        System.out.println(sum+" table(s) in total!");
+        return checkBatch1Consistency() && checkBatch3Consistency() && checkBatch4Consistency();
+    }
+    
+    private boolean checkBatch1Consistency()
+    {
+        DataTable table;
+        System.out.println("Batch 1 tables consistency check!");
+        for(int i=0; i<batches.get(0).size(); i++)
+        {
+            table = dataTables[batches.get(0).get(i)];
+            for(DataRow row : table.getDataRows())
+            {
+                String col1 = row.getDataCell(Lib.COL_HEADER_SN_AND_VC).getPlaintextASCIIEncoded();
+                String col2 = row.getDataCell(Lib.COL_HEADER_P_CHECK).getPlaintextASCIIEncoded();
+                String [] col1Split;
+                col1Split = col1.split(Lib.COL_SN_AND_VC_DELIMITING_CHAR);
+                
+                String voted = row.getDataCell(Lib.COL_HEADER_MARK_VOTED).getPlaintextASCIIEncoded();
+                if(!(col1Split[1].equals(col2) || col2.equals(Lib.COL_VALUE_NOT_CHECKED)))
+                {
+                    System.out.println("Inconsistency found! Batch 1 table "+table.getNumber());
+                    return false;
+                } 
+                    
+            }
+        }
+        System.out.println("Batch 1 tables consistency kept!");
+        return true;
+    }
+    
+    private boolean checkBatch34Consistency(int column1, int column2, int batch)
+    {
+        DataTable table;
+        System.out.println("Batch "+batch+" tables consistency check!");
+        for(int i=0; i<batches.get(batch-1).size(); i++)
+        {
+            table = dataTables[batches.get(batch-1).get(i)];
+            for(DataRow row : table.getDataRows())
+            {
+                String col1 = row.getDataCell(column1).getPlaintextASCIIEncoded();
+                String col2 = row.getDataCell(column2).getPlaintextASCIIEncoded();
+                
+                if(!(col1.equals(col2) || col1.equals(Lib.COL_VALUE_FAKE_VOTE)))
+                {
+                    System.out.println("Inconsistency found! Batch "+batch+" table "+table.getNumber());
+                    return false;
+                }
+            }
+        }
+        System.out.println("Batch "+batch+" tables consistency kept!");
+        return true;
+    }
+    
+    private boolean checkBatch3Consistency()
+    {
+        return checkBatch34Consistency(Lib.COL_HEADER_PRE_SUM_A, Lib.COL_HEADER_FINAL_SUM_A, 3);
+    }
+    
+    private boolean checkBatch4Consistency()
+    {
+        return checkBatch34Consistency(Lib.COL_HEADER_PRE_SUM_B, Lib.COL_HEADER_FINAL_SUM_B, 4);
+    }
+    
+    private void verifyTally() throws AuditException
+    {
+        DataTable table;
+        int [] yes = new int [batches.get(2).size()+batches.get(3).size()];
+        int [] no = new int [batches.get(2).size()+batches.get(3).size()];
         
-        // verify tally for batch #3
-//        for(DataTable table : )
+        int counter = 0;
+        // batch 3
+        for(int i=0; i<batches.get(2).size(); i++)
+        {
+            yes[counter] = 0;
+            no[counter] = 0;
+            
+            table = dataTables[batches.get(2).get(i)];
+            for(DataRow row : table.getDataRows())
+            {
+                String preA = row.getDataCell(Lib.COL_HEADER_PRE_SUM_A).getPlaintextASCIIEncoded();
+                String finA = row.getDataCell(Lib.COL_HEADER_FINAL_SUM_A).getPlaintextASCIIEncoded();
+                
+                if(preA.equals(finA))
+                {
+                    String voted = row.getDataCell(Lib.COL_HEADER_MARK_VOTED).getPlaintextASCIIEncoded();
+                    if(voted.equals(Lib.COL_VALUE_VOTED))
+                    {
+                        String vote = row.getDataCell(Lib.COL_HEADER_POSS_VOTE).getPlaintextASCIIEncoded();
+                        if(vote.equals(Lib.COL_VALUE_YES_VOTE))
+                            yes[counter]++;
+                        else if (vote.equals(Lib.COL_VALUE_NO_VOTE))
+                            no[counter]++;
+                        else throw new AuditException(("Wrong value in column 3 - possible votes found!"));
+                    }
+                }
+            }
+            counter++;
+        }
+        
+        // batch 4
+        for(int i=0; i<batches.get(3).size(); i++)
+        {
+            yes[counter] = 0;
+            no[counter] = 0;
+            
+            table = dataTables[batches.get(3).get(i)];
+            for(DataRow row : table.getDataRows())
+            {
+                String preB = row.getDataCell(Lib.COL_HEADER_PRE_SUM_B).getPlaintextASCIIEncoded();
+                String finB = row.getDataCell(Lib.COL_HEADER_FINAL_SUM_B).getPlaintextASCIIEncoded();
+                
+                if(preB.equals(finB))
+                {
+                    String voted = row.getDataCell(Lib.COL_HEADER_MARK_VOTED).getPlaintextASCIIEncoded();
+                    if(voted.equals(Lib.COL_VALUE_VOTED))
+                    {
+                        String vote = row.getDataCell(Lib.COL_HEADER_POSS_VOTE).getPlaintextASCIIEncoded();
+                        if(vote.equals(Lib.COL_VALUE_YES_VOTE))
+                            yes[counter]++;
+                        else if (vote.equals(Lib.COL_VALUE_NO_VOTE))
+                            no[counter]++;
+                        else throw new AuditException(("Wrong value in column 4 - possible votes found!"));
+                    }
+                }
+            }
+            counter++;
+        }
+        int yeses = -1;
+        int nos = -1;
+        boolean error = false;
+        
+        if(yes.length>0)
+            yeses = yes[0];
+        if(no.length>0)
+            nos = no[0];
+        // verify tally from different tables
+        for(int i=1; i<yes.length; i++)
+        {
+            if(yes[i]!=yeses || no[i]!=nos)
+            {
+                error = true;
+                break;
+            }
+        }
+        if(error)
+        {
+            System.out.println("Critical error found when verifying a tally! Different number of YES/NO votes in different tables!");
+        } else
+        {
+            System.out.println("Tally verified correctly!");
+            System.out.println("Number of YES votes: "+yeses);
+            System.out.println("Number of NO votes: "+nos);
+        }
+        
     }
 }
