@@ -116,6 +116,10 @@ public class DataTable implements Comparable {
      */
     public int getNumber() { return number; }
     
+    /**
+     * Specifys batch basing on opened keys. 
+     * @throws AuditException if cannot specify batch.
+     */
     public void specifyBatch() throws AuditException
     {
         if(cellKeys[Lib.COL_HEADER_SN_AND_VC].isOpened()
@@ -144,9 +148,19 @@ public class DataTable implements Comparable {
                     +number+" for specified keys opened!");
     }
     
+    /**
+     * Returns batch. 
+     * @return int value of batch.
+     */
     public int getBatch() { return batch; }
-
     
+    /**
+     * compareTo method used to sort array of this objects according to their
+     * numbers. 
+     * @param t DataTable object to compare to. 
+     * @return -1, 0, 1 if this object is less, equal 
+     * or greater then t object specified in parameter. 
+     */
     @Override
     public int compareTo(Object t) {
         DataTable table = (DataTable)t;

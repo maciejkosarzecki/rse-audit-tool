@@ -50,18 +50,37 @@ public class DataCell {
         this.ciphertext = c;
     }
     
-    
+    /**
+     * Set base64 String plaintext value. 
+     * @param plain base64 String value to be set. 
+     */
     public void setPlaintext(String plain)
     {
         plaintext = plain;
     }
     
+    /**
+     * Retruns base64 String ciphertext value. 
+     * @return base64 String ciphertext value. 
+     */
     public String getCiphertext() { return ciphertext; }
     
+    /**
+     * Returns base64 String initial vector value. 
+     * @return base64 String initial vector value. 
+     */
     public String getInitialVector() { return initialVector; }
     
+    /**
+     * Returns base64 String plaintext value. 
+     * @return base64 String plaintext value. 
+     */
     public String getPlaintext() { return plaintext; }
     
+    /**
+     * Returns ASCII encoded plaintext value.
+     * @return ASCII encoded plaintext value.
+     */
     public String getPlaintextASCIIEncoded() 
     {
         return new String(DatatypeConverter.parseBase64Binary(plaintext));

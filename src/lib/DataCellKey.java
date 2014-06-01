@@ -73,7 +73,21 @@ public class DataCellKey {
      */
     public boolean isOpened() { return opened; }
     
+    /**
+     * Retunrs base64 String commitment value. 
+     * @return base64 String commitment value.
+     */
     public String getCommitment() { return commitment; } 
+    
+    /**
+     * Retunrs base64 String decommitment value. 
+     * @return base64 String decommitment value.
+     */
     public String getDecommitment() { return decommitment; } 
+    
+    /**
+     * Retunrs base64 String plaintext value. 
+     * @return base64 String plaintext value.
+     */
     public String getPlaintext() { return plaintext; } 
 }

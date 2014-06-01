@@ -41,43 +41,46 @@ public class ExtractionKit {
     /**
      * Extract files from a specified .zip file. 
      * @param abbPath String path of the ABB.zip file.  
+     * @param destPath String destination path. 
      * @throws net.lingala.zip4j.exception.ZipException thrown when cannot 
      * extract specified .zip file. 
      */
-    public void extractFiles(String abbPath) throws ZipException
+    public void extractFiles(String abbPath, String destPath) throws ZipException
     {
+
         // extracts ABB.zip
-        extractZipFile(abbPath+Lib.ABB_FILE_NAME, abbPath);
+        extractZipFile(abbPath, destPath);
 
     }
     
     /**
      * Creates DataTable objects from .csv table files in from 
      * a specified directory. 
-     * @param abbPath String path of a directory with .csv files. 
+     * @param destPath String path of a directory with .csv files. 
      * @return array of DataTable objects representing .csv table files. 
      */
-    public DataTable[] extractData(String abbPath)
+    public DataTable[] extractData(String destPath)
     {
         // parses .csv table files
-        return parseTableFiles(abbPath+Lib.ABB_EXTRACTION_DESTINATION_FOLDER);   
+        return parseTableFiles(destPath + Lib.ABB_EXTRACTION_DESTINATION_FOLDER);   
     }
     
     /**
      * Creates DataTable objects containing opened keys for audit of 
      * the elections.
-     * @param abbPath String path of a directory with .csv files. 
+     * @param destPath String path of a directory with .csv files. 
      * @return array of DataTable objects containing opened keys for audit of
      * the elections.
+     * @throws lib.AuditException
      */
-    public DataTable[] extractDataKeys(String abbPath) throws AuditException
+    public DataTable[] extractDataKeys(String destPath) throws AuditException
     {
         DataTable[] auditTables;
         
         TableFilesFilter auditTablesFilter 
                 = new TableFilesFilter(Lib.ABB_AUDIT_FILES_NAME);
         
-        File directory = new File(abbPath+Lib.ABB_EXTRACTION_DESTINATION_FOLDER);
+        File directory = new File(destPath+Lib.ABB_EXTRACTION_DESTINATION_FOLDER);
         auditTables = parseTableFielsGroup(directory, auditTablesFilter);
         
         // specify batch

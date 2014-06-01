@@ -33,19 +33,33 @@ import javax.crypto.spec.SecretKeySpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
- *
+ * Toolkit used for columns decryption. 
  * @author Maciej Kosarzecki
  */
 public class DecryptionKit {
     
+    /**
+     * Secret key. 
+     */
     private SecretKeySpec keySpec;
+    
+    /**
+     * Cipher used.
+     */
     private Cipher cipher;
     
+    /**
+     * Default constructor. 
+     */
     public DecryptionKit()
     {
         Security.addProvider(new BouncyCastleProvider());
     }
     
+    /**
+     * Sets secret key used for decryption. 
+     * @param key byte representation of a key. 
+     */
     public void setKey(byte[] key)
     {
         try {
@@ -56,6 +70,12 @@ public class DecryptionKit {
         }
     }
     
+    /**
+     * Decrypts ciphrtext for the specified initial vector. 
+     * @param initialVector byte representation of initial vector. 
+     * @param ciphertext byte representation of ciphertext.
+     * @return byte representation of plaintext. 
+     */
     public byte[] decrypt(byte[] initialVector, byte[] ciphertext)
     {
         byte [] plaintext = null;

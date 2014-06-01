@@ -17,6 +17,8 @@
 
 package lib;
 
+import java.io.File;
+
 /**
  * Class containing useful data used in this auditing tool. 
  * @author Maciej Kosarzecki
@@ -87,7 +89,8 @@ public class Lib {
     /**
      * String name of ABB extraction destination folder. 
      */
-    public static String ABB_EXTRACTION_DESTINATION_FOLDER = "Archives/";
+    public static String ABB_EXTRACTION_DESTINATION_FOLDER = "Archives"
+            + File.separator;
     
     /**
      * String that is included in ABB prepare type A .csv files name.
@@ -158,5 +161,10 @@ public class Lib {
      * Column serial number & vote code delimiting character.
      */
     public static String COL_SN_AND_VC_DELIMITING_CHAR = "-";
+    
+    /**
+     * Number of serial numbers for each ballot.
+     */
+    public static int SERIAL_NUM_PER_BALLOT = 4;
     
 }
