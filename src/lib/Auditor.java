@@ -63,16 +63,12 @@ public class Auditor {
     {
         try {
             // manage paths
-            String destPath; 
-            int index = abbPath.lastIndexOf(File.separator);
-            if(index == -1)
-                destPath = "";
-            else 
-            {
-                destPath = abbPath.substring(0, index);
-            }
+            String destPath=""; 
+            File f = new File(abbPath);
+            destPath = f.getAbsolutePath();
+            int index = destPath.lastIndexOf(File.separator);
+            destPath = destPath.substring(0, index);
             destPath = destPath + File.separator;
-            
             System.out.println("-------- Extraction of data --------");
             System.out.println("Extracting files from archive...");
             ek.extractFiles(abbPath, destPath);
